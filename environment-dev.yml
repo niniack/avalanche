@@ -27,7 +27,7 @@ dependencies:
 - conda-forge::pycodestyle
 - sphinx
 - sphinx_rtd_theme
-- conda-forge::astroid=2.4.2
+- conda-forge::astroid
 - conda-forge::sphinx-autoapi
 - conda-forge::sphinx-copybutton
 - pip:

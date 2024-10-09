@@ -1,11 +1,10 @@
+import inspect
 import warnings
 from typing import TYPE_CHECKING
 
-from typing_extensions import Literal
-
 from avalanche.evaluation.metrics import Mean
 from avalanche.training.plugins import SupervisedPlugin
-import inspect
+from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from avalanche.training.templates import SupervisedTemplate
@@ -153,7 +152,6 @@ class LRSchedulerPlugin(SupervisedPlugin):
 
     def after_eval(self, strategy: "SupervisedTemplate", **kwargs):
         if self.metric == "val_loss" and self._was_training:
-
             if not self._executed_train_iteration:
                 # The base strategy may run an evaluation pass on the
                 # validation set before running the training loop. In that
@@ -175,9 +173,7 @@ class LRSchedulerPlugin(SupervisedPlugin):
 
         self._just_validated = True
 
-    def after_training_iteration(
-        self, strategy: "SupervisedTemplate", **kwargs
-    ):
+    def after_training_iteration(self, strategy: "SupervisedTemplate", **kwargs):
         self._executed_train_iteration = True
 
         if self.metric == "train_loss":

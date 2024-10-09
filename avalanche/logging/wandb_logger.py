@@ -8,22 +8,16 @@
 # E-mail: contact@continualai.org                                              #
 # Website: www.continualai.org                                                 #
 ################################################################################
-""" This module handles all the functionalities related to the logging of
-Avalanche experiments using Weights & Biases. """
+"""This module handles all the functionalities related to the logging of
+Avalanche experiments using Weights & Biases."""
 
-from typing import Union, List, TYPE_CHECKING
-from pathlib import Path
-import os
 import errno
+import os
+from pathlib import Path
+from typing import TYPE_CHECKING, List, Union
 
 import numpy as np
-from numpy import array
 import torch
-from torch import Tensor
-
-from PIL.Image import Image
-from matplotlib.pyplot import Figure
-
 from avalanche.core import SupervisedPlugin
 from avalanche.evaluation.metric_results import (
     AlternativeValues,
@@ -31,6 +25,10 @@ from avalanche.evaluation.metric_results import (
     TensorImage,
 )
 from avalanche.logging import BaseLogger
+from matplotlib.pyplot import Figure
+from numpy import array
+from PIL.Image import Image
+from torch import Tensor
 
 if TYPE_CHECKING:
     from avalanche.evaluation.metric_results import MetricValue
@@ -125,13 +123,13 @@ class WandBLogger(BaseLogger, SupervisedPlugin):
         if self.init_kwargs is None:
             self.init_kwargs = dict()
 
-        run_id = self.init_kwargs.get('id', None)
+        run_id = self.init_kwargs.get("id", None)
         if run_id is None:
             run_id = os.environ.get("WANDB_RUN_ID", None)
         if run_id is None:
             run_id = self.wandb.util.generate_id()
 
-        self.init_kwargs['id'] = run_id
+        self.init_kwargs["id"] = run_id
 
         self.wandb.init(**self.init_kwargs)
         self.wandb.run._label(repo="Avalanche")
@@ -140,7 +138,7 @@ class WandBLogger(BaseLogger, SupervisedPlugin):
         self,
         strategy: "SupervisedTemplate",
         metric_values: List["MetricValue"],
-        **kwargs
+        **kwargs,
     ):
         for val in metric_values:
             self.log_metrics([val])
@@ -164,8 +162,15 @@ class WandBLogger(BaseLogger, SupervisedPlugin):
 
         if not isinstance(
             value,
-            (Image, TensorImage, Tensor, Figure, float, int,
-             self.wandb.viz.CustomChart),
+            (
+                Image,
+                TensorImage,
+                Tensor,
+                Figure,
+                float,
+                int,
+                self.wandb.viz.CustomChart,
+            ),
         ):
             # Unsupported type
             return
@@ -179,15 +184,11 @@ class WandBLogger(BaseLogger, SupervisedPlugin):
                 {name: self.wandb.Histogram(np_histogram=value)}, step=self.step
             )
 
-        elif isinstance(
-            value, (float, int, Figure, self.wandb.viz.CustomChart)
-        ):
+        elif isinstance(value, (float, int, Figure, self.wandb.viz.CustomChart)):
             self.wandb.log({name: value}, step=self.step)
 
         elif isinstance(value, TensorImage):
-            self.wandb.log(
-                {name: self.wandb.Image(array(value))}, step=self.step
-            )
+            self.wandb.log({name: self.wandb.Image(array(value))}, step=self.step)
 
         elif name.startswith("WeightCheckpoint"):
             if self.log_artifacts:
@@ -212,21 +213,19 @@ class WandBLogger(BaseLogger, SupervisedPlugin):
 
     def __getstate__(self):
         state = self.__dict__.copy()
-        if 'wandb' in state:
-            del state['wandb']
+        if "wandb" in state:
+            del state["wandb"]
         return state
 
     def __setstate__(self, state):
-        print('[W&B logger] Resuming from checkpoint...')
+        print("[W&B logger] Resuming from checkpoint...")
         self.__dict__ = state
         if self.init_kwargs is None:
             self.init_kwargs = dict()
-        self.init_kwargs['resume'] = 'allow'
+        self.init_kwargs["resume"] = "allow"
 
         self.wandb = None
         self.before_run()
 
 
-__all__ = [
-    "WandBLogger"
-]
+__all__ = ["WandBLogger"]
